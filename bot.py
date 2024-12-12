@@ -4,6 +4,7 @@ import subprocess
 import json
 import os
 import bot_token
+import time
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -40,10 +41,11 @@ async def update_server_status():
 
         print("Fetching player count...")
         player_count_result = subprocess.run(['/etc/init.d/minecraft', 'playercount'], capture_output=True, text=True, check=True)
-        player_count = int(player_count_result.stdout.strip()) - 1
+        player_count = max(0, int(player_count_result.stdout.strip()) - 1)
 
         print(f"Updating message with status:\n{server_status}\nPlayers: {player_count}")
-        await message.edit(content=f'Minecraft Server Status:\n{server_status}\nPlayers: {player_count}\nIP: {bot_token.ip}')
+        last_heartbeat = time.time()
+        await message.edit(content=f'Minecraft Server Status:\n{server_status}\nPlayers: {player_count}\nIP: {bot_token.ip}\nLast Updated: {time.strftime("%m-%d %H:%M:%S", time.gmtime(last_heartbeat))}')
 
     except subprocess.CalledProcessError as e:
         print(f"Error fetching server status: {e.stderr}")
