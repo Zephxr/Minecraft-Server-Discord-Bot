@@ -50,7 +50,7 @@ async def update_server_status():
         last_heartbeat = time.time()
         await message.edit(content=f'Minecraft Server Status:\n{server_status}\nPlayers: {player_count}\nIP: {bot_token.ip}\nLast Updated: {time.strftime("%b %d %I:%M %p", time.localtime(last_heartbeat))}')
 
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         print(f"Error fetching server status: {e.stderr}")
         await message.edit(content="Error fetching server status.")
 
