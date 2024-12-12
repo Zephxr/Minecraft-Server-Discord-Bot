@@ -4,7 +4,6 @@ import subprocess
 import json
 import os
 import bot_token
-import re
 
 intents = discord.Intents.default()
 intents.message_content = True
