@@ -43,6 +43,7 @@ async def update_server_status():
 
 @bot.event
 async def on_ready():
+    global message_id
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     channel_id = bot_token.channel_id
     if os.path.exists(MESSAGE_DATA_FILE):
@@ -75,6 +76,7 @@ async def on_ready():
         with open(MESSAGE_DATA_FILE, 'w') as f:
             json.dump({'channel_id': channel.id, 'message_id': message.id}, f)
         print(f"Sent new message with ID {message.id}.")
+        message_id = message.id
     
     update_server_status.start()
 
