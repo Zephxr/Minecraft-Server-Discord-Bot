@@ -15,7 +15,7 @@ MESSAGE_DATA_FILE = 'message_data.json'
 
 message_id = None
 
-@tasks.loop(minutes=1)
+@tasks.loop(seconds=10)
 async def update_server_status():
     global message_id
     print(message_id)
