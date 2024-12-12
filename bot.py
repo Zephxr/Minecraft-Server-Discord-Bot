@@ -41,7 +41,7 @@ async def update_server_status():
 
         print("Fetching player count...")
         player_count_result = subprocess.run(['/etc/init.d/minecraft', 'playercount'], capture_output=True, text=True, check=True)
-        if "running server" in player_count_result:
+        if "running server" in player_count_result.stdout.strip():
             player_count = 0
         else:
             player_count = max(0, int(player_count_result.stdout.strip()) - 1)
