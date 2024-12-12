@@ -104,26 +104,25 @@ async def on_interaction(interaction: discord.Interaction):
                 await interaction.response.send_message('You do not have permission to perform this action.', ephemeral=True)
                 return
 
-        if custom_id == 'start_server':
-            await interaction.response.send_message('Starting Minecraft server...', ephemeral=True)
-            try:
+        try:
+            if custom_id == 'start_server':
+                await interaction.response.send_message('Starting Minecraft server...', ephemeral=True)
                 result = subprocess.run(['/etc/init.d/minecraft', 'start'], capture_output=True, text=True, check=True)
-                await interaction.response.send_message(f'Success: {result.stdout}', ephemeral=True)
-            except subprocess.CalledProcessError as e:
-                await interaction.response.send_message(f'Error starting server: {e.stderr}', ephemeral=True)
-        elif custom_id == 'restart_server':
-            await interaction.response.send_message('Restarting Minecraft server...', ephemeral=True)
-            try:
+                await interaction.edit_original_message(content=f'Success: {result.stdout}')
+                
+            elif custom_id == 'restart_server':
+                await interaction.response.send_message('Restarting Minecraft server...', ephemeral=True)
                 result = subprocess.run(['/etc/init.d/minecraft', 'restart'], capture_output=True, text=True, check=True)
-                await interaction.response.send_message(f'Success: {result.stdout}', ephemeral=True)
-            except subprocess.CalledProcessError as e:
-                await interaction.response.send_message(f'Error restarting server: {e.stderr}', ephemeral=True)
-        elif custom_id == 'stop_server':
-            await interaction.response.send_message('Stopping Minecraft server...', ephemeral=True)
-            try:
+                await interaction.edit_original_message(content=f'Success: {result.stdout}')
+                
+            elif custom_id == 'stop_server':
+                await interaction.response.send_message('Stopping Minecraft server...', ephemeral=True)
                 result = subprocess.run(['/etc/init.d/minecraft', 'stop'], capture_output=True, text=True, check=True)
-                await interaction.response.send_message(f'Success: {result.stdout}', ephemeral=True)
-            except subprocess.CalledProcessError as e:
-                await interaction.response.send_message(f'Error stopping server: {e.stderr}', ephemeral=True)
+                await interaction.edit_original_message(content=f'Success: {result.stdout}')
+
+        except subprocess.CalledProcessError as e:
+            await interaction.edit_original_message(content=f'Error: {e.stderr}')
+
+
 
 bot.run(bot_token.bot_token)
