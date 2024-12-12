@@ -41,7 +41,7 @@ async def update_server_status():
         player_count_result = subprocess.run(['/etc/init.d/minecraft', 'connected'], capture_output=True, text=True, check=True)
         player_count_raw = player_count_result.stdout.strip()
 
-        match = re.search(r'(\d+)', player_count)
+        match = re.search(r'(\d+)', player_count_raw)
         if match:
             player_count = match.group(1)
         else:
@@ -49,7 +49,7 @@ async def update_server_status():
 
         print(f"Updating message with status:\n{server_status}\nPlayers: {player_count}")
         await message.edit(content=f'Minecraft Server Status:\n{server_status}\nPlayers: {player_count}\nIP: {bot_token.ip}')
-        
+
     except subprocess.CalledProcessError as e:
         print(f"Error fetching server status: {e.stderr}")
         await message.edit(content="Error fetching server status.")
