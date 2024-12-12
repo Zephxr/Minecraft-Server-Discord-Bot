@@ -108,20 +108,20 @@ async def on_interaction(interaction: discord.Interaction):
             if custom_id == 'start_server':
                 await interaction.response.send_message('Starting Minecraft server...', ephemeral=True)
                 result = subprocess.run(['/etc/init.d/minecraft', 'start'], capture_output=True, text=True, check=True)
-                await interaction.edit_original_message(content=f'Success: {result.stdout}')
+                await interaction.edit_original_response(content=f'Success: {result.stdout}')
                 
             elif custom_id == 'restart_server':
                 await interaction.response.send_message('Restarting Minecraft server...', ephemeral=True)
                 result = subprocess.run(['/etc/init.d/minecraft', 'restart'], capture_output=True, text=True, check=True)
-                await interaction.edit_original_message(content=f'Success: {result.stdout}')
+                await interaction.edit_original_response(content=f'Success: {result.stdout}')
                 
             elif custom_id == 'stop_server':
                 await interaction.response.send_message('Stopping Minecraft server...', ephemeral=True)
                 result = subprocess.run(['/etc/init.d/minecraft', 'stop'], capture_output=True, text=True, check=True)
-                await interaction.edit_original_message(content=f'Success: {result.stdout}')
+                await interaction.edit_original_response(content=f'Success: {result.stdout}')
 
         except subprocess.CalledProcessError as e:
-            await interaction.edit_original_message(content=f'Error: {e.stderr}')
+            await interaction.edit_original_response(content=f'Error: {e.stderr}')
 
 
 
