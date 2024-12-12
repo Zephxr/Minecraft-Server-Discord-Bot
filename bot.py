@@ -51,7 +51,7 @@ async def update_server_status():
         await message.edit(content=f'Minecraft Server Status:\n{server_status}\nPlayers: {player_count}\nIP: {bot_token.ip}\nLast Updated: {time.strftime("%b %d %I:%M %p", time.localtime(last_heartbeat))}')
 
     except Exception as e:
-        print(f"Error fetching server status: {e.stderr}")
+        print(f"Error fetching server status: {e}")
         await message.edit(content="Error fetching server status.")
 
 @bot.event
