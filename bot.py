@@ -110,7 +110,7 @@ async def on_interaction(interaction: discord.Interaction):
             await interaction.response.send_message('Stopping Minecraft server...', ephemeral=True)
             try:
                 result = subprocess.run(['/etc/init.d/minecraft', 'stop'], capture_output=True, text=True, check=True)
-                await interaction.channel.send(f'Success: {result.stdout}' ephemeral=True)
+                await interaction.channel.send(f'Success: {result.stdout}', ephemeral=True)
             except subprocess.CalledProcessError as e:
                 await interaction.channel.send(f'Error stopping server: {e.stderr}')
 
