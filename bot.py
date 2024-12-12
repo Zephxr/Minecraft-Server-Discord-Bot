@@ -38,7 +38,7 @@ async def update_server_status():
             server_status = "Server is not running."
 
         print("Fetching player count...")
-        player_count_result = subprocess.run(['/etc/init.d/minecraft', 'connected'], capture_output=True, text=True, check=True)
+        player_count_result = subprocess.run(['/etc/init.d/minecraft', 'playercount'], capture_output=True, text=True, check=True)
         player_count_raw = player_count_result.stdout.strip()
 
         match = re.search(r'(\d+)', player_count_raw)
