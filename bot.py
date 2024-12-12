@@ -38,7 +38,7 @@ async def update_server_status():
 
         print("Fetching player count...")
         player_count_result = subprocess.run(['/etc/init.d/minecraft', 'playercount'], capture_output=True, text=True, check=True)
-        player_count = player_count_result.stdout.strip() - 1
+        player_count = int(player_count_result.stdout.strip()) - 1
 
         print(f"Updating message with status:\n{server_status}\nPlayers: {player_count}")
         await message.edit(content=f'Minecraft Server Status:\n{server_status}\nPlayers: {player_count}\nIP: {bot_token.ip}')
