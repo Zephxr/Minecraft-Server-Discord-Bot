@@ -14,6 +14,8 @@ MESSAGE_DATA_FILE = 'message_data.json'
 
 message_id = None
 
+ADMIN_USER_IDS = bot_token.adminIDs
+
 @tasks.loop(seconds=10)
 async def update_server_status():
     global message_id
@@ -91,26 +93,32 @@ async def on_interaction(interaction: discord.Interaction):
     if interaction.type == discord.InteractionType.component:
         custom_id = interaction.data.get('custom_id')
 
+        # Check if the user is an admin (for restart and stop actions)
+        if interaction.user.id not in ADMIN_USER_IDS:
+            if custom_id in ['restart_server', 'stop_server']:
+                await interaction.response.send_message('You do not have permission to perform this action.', ephemeral=True)
+                return
+
         if custom_id == 'start_server':
             await interaction.response.send_message('Starting Minecraft server...', ephemeral=True)
             try:
                 result = subprocess.run(['/etc/init.d/minecraft', 'start'], capture_output=True, text=True, check=True)
-                await interaction.channel.send(f'Success: {result.stdout}')
+                await interaction.channel.send(f'Success: {result.stdout}', ephemeral=True)
             except subprocess.CalledProcessError as e:
-                await interaction.channel.send(f'Error starting server: {e.stderr}')
+                await interaction.channel.send(f'Error starting server: {e.stderr}', ephemeral=True)
         elif custom_id == 'restart_server':
             await interaction.response.send_message('Restarting Minecraft server...', ephemeral=True)
             try:
                 result = subprocess.run(['/etc/init.d/minecraft', 'restart'], capture_output=True, text=True, check=True)
-                await interaction.channel.send(f'Success: {result.stdout}')
+                await interaction.channel.send(f'Success: {result.stdout}', ephemeral=True)
             except subprocess.CalledProcessError as e:
-                await interaction.channel.send(f'Error restarting server: {e.stderr}')
+                await interaction.channel.send(f'Error restarting server: {e.stderr}', ephemeral=True)
         elif custom_id == 'stop_server':
             await interaction.response.send_message('Stopping Minecraft server...', ephemeral=True)
             try:
                 result = subprocess.run(['/etc/init.d/minecraft', 'stop'], capture_output=True, text=True, check=True)
                 await interaction.channel.send(f'Success: {result.stdout}', ephemeral=True)
             except subprocess.CalledProcessError as e:
-                await interaction.channel.send(f'Error stopping server: {e.stderr}')
+                await interaction.channel.send(f'Error stopping server: {e.stderr}', ephemeral=True)
 
 bot.run(bot_token.bot_token)
