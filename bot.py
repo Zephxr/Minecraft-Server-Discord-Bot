@@ -41,11 +41,16 @@ async def update_server_status():
 
         print("Fetching player count...")
         player_count_result = subprocess.run(['/etc/init.d/minecraft', 'playercount'], capture_output=True, text=True, check=True)
-        if "running server" in player_count_result.stdout.strip():
-            player_count = 0
-        else:
-            player_count = max(0, int(player_count_result.stdout.strip()))
-
+        
+        # Check if playercount is valid
+        try:
+            if "running server" in player_count_result.stdout.strip() or "Could not determine player count" in player_count_result.stdout.strip():
+                player_count = 0  # No players if the server isn't running properly
+            else:
+                player_count = max(0, int(player_count_result.stdout.strip()))  # Safely convert to int if valid
+        except ValueError:
+            player_count = 0  # Fallback if there’s an issue parsing the player count
+        
         print(f"Updating message with status:\n{server_status}\nPlayers: {player_count}")
         last_heartbeat = time.time()
         await message.edit(content=f'Minecraft Server Status:\n{server_status}\nPlayers: {player_count}\nIP: {bot_token.ip}\nLast Updated: {time.strftime("%b %d %I:%M %p", time.localtime(last_heartbeat))}')
@@ -53,6 +58,7 @@ async def update_server_status():
     except Exception as e:
         print(f"Error fetching server status: {e}")
         await message.edit(content="Error fetching server status.")
+
 
 @bot.event
 async def on_ready():
