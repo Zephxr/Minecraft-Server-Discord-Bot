@@ -16,6 +16,8 @@ message_id = None
 
 @tasks.loop(minutes=1)
 async def update_server_status():
+    global message_id
+    print(message_id)
     print("Running server status update loop...")
     if message_id is None:
         print("Message ID is None, skipping update.")
