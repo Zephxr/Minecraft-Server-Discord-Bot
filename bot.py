@@ -44,7 +44,7 @@ async def update_server_status():
         if "running server" in player_count_result.stdout.strip():
             player_count = 0
         else:
-            player_count = max(0, int(player_count_result.stdout.strip()) - 1)
+            player_count = max(0, int(player_count_result.stdout.strip()))
 
         print(f"Updating message with status:\n{server_status}\nPlayers: {player_count}")
         last_heartbeat = time.time()
