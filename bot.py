@@ -4,6 +4,7 @@ import subprocess
 import json
 import os
 import bot_token
+import re
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -31,12 +32,24 @@ async def update_server_status():
         status_result = subprocess.run(['/etc/init.d/minecraft', 'status'], capture_output=True, text=True, check=True)
         server_status = status_result.stdout.strip()
 
+        if "is running" in server_status:
+            server_status = "Server is running!"
+        else:
+            server_status = "Server is not running."
+
         print("Fetching player count...")
         player_count_result = subprocess.run(['/etc/init.d/minecraft', 'connected'], capture_output=True, text=True, check=True)
-        player_count = player_count_result.stdout.strip()
+        player_count_raw = player_count_result.stdout.strip()
+
+        match = re.search(r'(\d+)', player_count)
+        if match:
+            player_count = match.group(1)
+        else:
+            player_count = "0"
 
         print(f"Updating message with status:\n{server_status}\nPlayers: {player_count}")
         await message.edit(content=f'Minecraft Server Status:\n{server_status}\nPlayers: {player_count}\nIP: {bot_token.ip}')
+        
     except subprocess.CalledProcessError as e:
         print(f"Error fetching server status: {e.stderr}")
         await message.edit(content="Error fetching server status.")
