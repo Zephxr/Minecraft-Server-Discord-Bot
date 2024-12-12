@@ -16,21 +16,27 @@ message_id = None
 
 @tasks.loop(minutes=1)
 async def update_server_status():
+    print("Running server status update loop...")
     if message_id is None:
+        print("Message ID is None, skipping update.")
         return
 
     channel = bot.get_channel(bot_token.channel_id)
     message = await channel.fetch_message(message_id)
 
     try:
+        print("Fetching server status...")
         status_result = subprocess.run(['/etc/init.d/minecraft', 'status'], capture_output=True, text=True, check=True)
         server_status = status_result.stdout.strip()
 
+        print("Fetching player count...")
         player_count_result = subprocess.run(['/etc/init.d/minecraft', 'connected'], capture_output=True, text=True, check=True)
         player_count = player_count_result.stdout.strip()
 
+        print(f"Updating message with status:\n{server_status}\nPlayers: {player_count}")
         await message.edit(content=f'Minecraft Server Status:\n{server_status}\nPlayers: {player_count}\nIP: {bot_token.ip}')
     except subprocess.CalledProcessError as e:
+        print(f"Error fetching server status: {e.stderr}")
         await message.edit(content="Error fetching server status.")
 
 @bot.event
@@ -67,6 +73,8 @@ async def on_ready():
         with open(MESSAGE_DATA_FILE, 'w') as f:
             json.dump({'channel_id': channel.id, 'message_id': message.id}, f)
         print(f"Sent new message with ID {message.id}.")
+    
+    update_server_status.start()
 
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
@@ -74,21 +82,21 @@ async def on_interaction(interaction: discord.Interaction):
         custom_id = interaction.data.get('custom_id')
 
         if custom_id == 'start_server':
-            await interaction.response.send_message('Starting Minecraft server...')
+            await interaction.response.send_message('Starting Minecraft server...', ephemeral=True)
             try:
                 result = subprocess.run(['/etc/init.d/minecraft', 'start'], capture_output=True, text=True, check=True)
                 await interaction.channel.send(f'Success: {result.stdout}')
             except subprocess.CalledProcessError as e:
                 await interaction.channel.send(f'Error starting server: {e.stderr}')
         elif custom_id == 'restart_server':
-            await interaction.response.send_message('Restarting Minecraft server...')
+            await interaction.response.send_message('Restarting Minecraft server...', ephemeral=True)
             try:
                 result = subprocess.run(['/etc/init.d/minecraft', 'restart'], capture_output=True, text=True, check=True)
                 await interaction.channel.send(f'Success: {result.stdout}')
             except subprocess.CalledProcessError as e:
                 await interaction.channel.send(f'Error restarting server: {e.stderr}')
         elif custom_id == 'stop_server':
-            await interaction.response.send_message('Stopping Minecraft server...')
+            await interaction.response.send_message('Stopping Minecraft server...', ephemeral=True)
             try:
                 result = subprocess.run(['/etc/init.d/minecraft', 'stop'], capture_output=True, text=True, check=True)
                 await interaction.channel.send(f'Success: {result.stdout}')
