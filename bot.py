@@ -146,6 +146,7 @@ async def on_message(message):
     
     if message.content.startswith('!clear_chat') and message.author.id in ADMIN_USER_IDS:
         await clear_chat(message.channel, message_id)
+        return
 
     if message.content.startswith('!') and message.author.id in ADMIN_USER_IDS:
         command = message.content[1:].strip()
