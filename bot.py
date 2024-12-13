@@ -5,6 +5,10 @@ import json
 import os
 import bot_token
 import time
+import logging
+
+logging.basicConfig(filename='bot_commands.log', level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -150,6 +154,7 @@ async def on_message(message):
 
     if message.content.startswith('!') and message.author.id in ADMIN_USER_IDS:
         command = message.content[1:].strip()
+        logging.info(f"User {message.author} executed command: {command}")
         try:
             print(f"Executing command: {command}")
             result = subprocess.run(['/etc/init.d/minecraft', 'command', command], capture_output=True, text=True, check=True)
