@@ -129,6 +129,22 @@ async def on_interaction(interaction: discord.Interaction):
         except subprocess.CalledProcessError as e:
             await interaction.edit_original_response(content=f'Error: {e.stderr}')
 
+@bot.event
+async def on_message(message):
+    # Ignore messages from the bot itself
+    if message.author == bot.user:
+        return
 
+    # Check if the message starts with the command prefix and is from an admin
+    if message.content.startswith('!') and message.author.id in ADMIN_USER_IDS:
+        command = message.content[1:].strip()  # Remove the prefix and any extra whitespace
+        try:
+            print(f"Executing command: {command}")
+            result = subprocess.run(['/etc/init.d/minecraft', 'command', command], capture_output=True, text=True, check=True)
+            await message.channel.send(f'Command executed successfully:\n{result.stdout}')
+        except subprocess.CalledProcessError as e:
+            await message.channel.send(f'Error executing command:\n{e.stderr}')
+    
+    await bot.process_commands(message)
 
 bot.run(bot_token.bot_token)
