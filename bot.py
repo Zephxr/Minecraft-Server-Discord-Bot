@@ -131,7 +131,7 @@ async def on_interaction(interaction: discord.Interaction):
 
 async def clear_chat(channel, message_to_keep):
   async for message in channel.history(limit=None):
-    if message.id != message_to_keep.id:
+    if message.id != message_to_keep:
       try:
         print(f"Deleting {message.id}\n")
         await message.delete()
