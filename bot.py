@@ -145,23 +145,24 @@ async def on_message(message):
     
     await bot.process_commands(message)
 
-@bot.command()
-async def clear_chat(ctx):
+@bot.command(name="clear_chat", description="Clears all messages in the channel except the bot's message.")
+@commands.has_permissions(manage_messages=True)
+async def _clear_chat(ctx):
     if message_id is None:
         await ctx.send("No message data found. Please initialize the bot message first.")
         return
 
     if ctx.author.id in ADMIN_USER_IDS:
-        channel = ctx.channel
         try:
             # Get all messages in the channel history
-            messages = await channel.history(limit=None).flatten()
+            messages = await ctx.channel.history(limit=None).flatten()
         except discord.HTTPException as e:
             await ctx.send(f"Error fetching messages: {e}")
             return
 
+        # Filter out the bot's message with buttons and delete the rest
         messages_to_delete = [msg for msg in messages if msg.id != message_id]
-        deleted = await channel.purge(limit=len(messages_to_delete), check=lambda m: m in messages_to_delete)
+        deleted = await ctx.channel.purge(limit=len(messages_to_delete), check=lambda m: m in messages_to_delete)
         await ctx.send(f"Deleted {len(deleted)} messages.")
     else:
         await ctx.send("You do not have permission to use this command.")
