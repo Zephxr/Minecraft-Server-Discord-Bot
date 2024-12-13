@@ -154,6 +154,9 @@ async def on_message(message):
 
     if message.content.startswith('!') and message.author.id in ADMIN_USER_IDS:
         command = message.content[1:].strip()
+        if "!op" in command or "!deop" in command or " op " in command or " deop " in command:
+            message.channel.send(f"Shame on you, trying to bypass the system.  Shame.")
+            return
         logging.info(f"User {message.author} executed command: {command}")
         try:
             print(f"Executing command: {command}")
