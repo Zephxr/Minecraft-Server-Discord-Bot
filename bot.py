@@ -133,7 +133,20 @@ async def on_interaction(interaction: discord.Interaction):
 async def on_message(message):
     if message.author == bot.user:
         return
+    
+    if message.content.startswith('!clear_chat') and message.author.id in ADMIN_USER_IDS:
+        channel = message.channel
+        control_message = await channel.fetch_message(message_id)
+        delete_before = control_message.created_at
 
+        async for msg in channel.history(limit=None, before=delete_before):
+            if msg != control_message:
+                try:
+                    await msg.delete()
+                except discord.HTTPException as e:
+                    print(f"Error deleting message {msg.id}: {e}")
+
+        await message.channel.send("Chat cleared (excluding server control message).")
     if message.content.startswith('!') and message.author.id in ADMIN_USER_IDS:
         command = message.content[1:].strip()
         try:
@@ -144,27 +157,5 @@ async def on_message(message):
             await message.channel.send(f'Error executing command:\n{e.stderr}')
     
     await bot.process_commands(message)
-
-@bot.command(name="clear_chat", description="Clears all messages in the channel except the bot's message.")
-@commands.has_permissions(manage_messages=True)
-async def _clear_chat(ctx):
-    if message_id is None:
-        await ctx.send("No message data found. Please initialize the bot message first.")
-        return
-
-    if ctx.author.id in ADMIN_USER_IDS:
-        try:
-            # Get all messages in the channel history
-            messages = await ctx.channel.history(limit=None).flatten()
-        except discord.HTTPException as e:
-            await ctx.send(f"Error fetching messages: {e}")
-            return
-
-        # Filter out the bot's message with buttons and delete the rest
-        messages_to_delete = [msg for msg in messages if msg.id != message_id]
-        deleted = await ctx.channel.purge(limit=len(messages_to_delete), check=lambda m: m in messages_to_delete)
-        await ctx.send(f"Deleted {len(deleted)} messages.")
-    else:
-        await ctx.send("You do not have permission to use this command.")
 
 bot.run(bot_token.bot_token)
