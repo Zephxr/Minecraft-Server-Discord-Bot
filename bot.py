@@ -129,24 +129,24 @@ async def on_interaction(interaction: discord.Interaction):
         except subprocess.CalledProcessError as e:
             await interaction.edit_original_response(content=f'Error: {e.stderr}')
 
+async def clear_chat(channel, message_to_keep):
+  async for message in channel.history(limit=None):
+    if message.id != message_to_keep.id:
+      try:
+        print(f"Deleting {message.id}\n")
+        await message.delete()
+      except discord.HTTPException as e:
+        print(f"Error deleting message {message.id}: {e}")
+
 @bot.event
 async def on_message(message):
+    global message_id
     if message.author == bot.user:
         return
     
     if message.content.startswith('!clear_chat') and message.author.id in ADMIN_USER_IDS:
-        channel = message.channel
-        control_message = await channel.fetch_message(message_id)
-        delete_before = control_message.created_at
+        await clear_chat(message.channel, message_id)
 
-        async for msg in channel.history(limit=None, before=delete_before):
-            if msg != control_message:
-                try:
-                    await msg.delete()
-                except discord.HTTPException as e:
-                    print(f"Error deleting message {msg.id}: {e}")
-
-        await message.channel.send("Chat cleared (excluding server control message).")
     if message.content.startswith('!') and message.author.id in ADMIN_USER_IDS:
         command = message.content[1:].strip()
         try:
