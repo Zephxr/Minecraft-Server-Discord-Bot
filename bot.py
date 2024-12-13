@@ -131,13 +131,11 @@ async def on_interaction(interaction: discord.Interaction):
 
 @bot.event
 async def on_message(message):
-    # Ignore messages from the bot itself
     if message.author == bot.user:
         return
 
-    # Check if the message starts with the command prefix and is from an admin
     if message.content.startswith('!') and message.author.id in ADMIN_USER_IDS:
-        command = message.content[1:].strip()  # Remove the prefix and any extra whitespace
+        command = message.content[1:].strip()
         try:
             print(f"Executing command: {command}")
             result = subprocess.run(['/etc/init.d/minecraft', 'command', command], capture_output=True, text=True, check=True)
@@ -146,5 +144,26 @@ async def on_message(message):
             await message.channel.send(f'Error executing command:\n{e.stderr}')
     
     await bot.process_commands(message)
+
+@bot.command()
+async def clear_chat(ctx):
+    if message_id is None:
+        await ctx.send("No message data found. Please initialize the bot message first.")
+        return
+
+    if ctx.author.id in ADMIN_USER_IDS:
+        channel = ctx.channel
+        try:
+            # Get all messages in the channel history
+            messages = await channel.history(limit=None).flatten()
+        except discord.HTTPException as e:
+            await ctx.send(f"Error fetching messages: {e}")
+            return
+
+        messages_to_delete = [msg for msg in messages if msg.id != message_id]
+        deleted = await channel.purge(limit=len(messages_to_delete), check=lambda m: m in messages_to_delete)
+        await ctx.send(f"Deleted {len(deleted)} messages.")
+    else:
+        await ctx.send("You do not have permission to use this command.")
 
 bot.run(bot_token.bot_token)
